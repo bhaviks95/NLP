@@ -6,8 +6,9 @@ from torch.utils.data import Dataset, DataLoader
 import pandas as pd
 import numpy as np
 from network import network
+from Preprocessing import PreprocessedData
 
-trainset = PreprocessedDataSet('dataset')
+trainset = PreprocessedData()
 
 batch_size = 64
 epochs = 10
