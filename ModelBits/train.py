@@ -13,6 +13,15 @@ path = os.path.dirname(os.path.abspath(__file__))
 
 if __name__ == "__main__":
 
+    def device():
+        if torch.backends.mps.is_available():
+            device = torch.device("mps") 
+        elif torch.cuda.is_available():
+            device = torch.device('cuda')
+        else:
+            device = torch.device('cpu')
+        return device
+    
     dataset = PreprocessedData()
     trainset, testset = random_split(dataset, [0.8,0.2])
 
@@ -21,7 +30,7 @@ if __name__ == "__main__":
     input_size = 768
     hidden_size = 768
     L = 3
-    device = torch.device("mps")
+    device = device()
 
     trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=0, pin_memory = True)
     testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=True, num_workers=0, pin_memory = True)
