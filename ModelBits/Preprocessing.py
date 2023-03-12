@@ -33,10 +33,10 @@ class PreprocessedData(Dataset):
         df_crwd_grnd = pd.concat([df_groundtruth,df_crowdsourced],axis=0)
         sentence_id_with_v = df_crwd_grnd['Sentence_id'].values
         df_without_label = df_all_sentences[~((df_all_sentences['Speaker'] == 'Information') | (df_all_sentences['Speaker_title'].isna()) | (df_all_sentences['Sentence_id'].isin(sentence_id_with_v))) ]
-        df_without_label['Verdict'] = 7 #all non labels have 7 as verdict
+        df_without_label['Verdict'] = 6 #all non labels have 7 as verdict
         df_full = pd.concat([df_crwd_grnd,df_without_label],axis=0)
         df_full = df_full.sort_values('Sentence_id')
-        
+        df_full['Verdict'] = df_full['Verdict'].apply(lambda x: x+1)
         text = df_full["Text"].values.tolist()
         tokenized_text = self.autotokenizer(text, padding="longest", truncation=True)['input_ids']
 
@@ -76,3 +76,5 @@ class PreprocessedData(Dataset):
 
         return torch.tensor(dataset), torch.tensor(label)
 
+a = PreprocessedData()
+print(a.labels.unique())
