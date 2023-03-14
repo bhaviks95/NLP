@@ -28,11 +28,11 @@ class Get_Dataset(Dataset):
     
     def load_data(self):
         if self.train:
-            sentences = np.load(str(path) + '/Data/train_sentences__13_03_2023__04_38_26.npy')
-            labels = np.load(str(path) + '/Data/train_labels__13_03_2023__04_38_26.npy')
+            sentences = np.load(str(path) + '/Data/train_sentences__13_03_2023__04_38_26.npy',allow_pickle=True)
+            labels = np.load(str(path) + '/Data/train_labels__13_03_2023__04_38_26.npy',allow_pickle=True)
         else:
-            sentences = np.load(str(path) + '/Data/test_sentences__13_03_2023__04_38_26.npy').tolist()
-            labels = np.load(str(path) + '/Data/test_labels__13_03_2023__04_38_26.npy')
+            sentences = np.load(str(path) + '/Data/test_sentences__13_03_2023__04_38_26.npy',allow_pickle=True).tolist()
+            labels = np.load(str(path) + '/Data/test_labels__13_03_2023__04_38_26.npy',allow_pickle=True)
 
         labelled_indices = np.where(labels!=7)[0]
         labels = labels.tolist()
