@@ -38,7 +38,7 @@ if __name__ == "__main__":
 
     model = network(input_size=input_size, hidden_size=hidden_size, L = L, batch_size = batch_size).to(device)
 
-    checkpoint = torch.load(str(path) + '/model1_checkpoint_epoch_5.pt')
+    checkpoint = torch.load(str(path) + '/Model/model1_checkpoint_epoch_5.pt')
     model.load_state_dict(checkpoint['model_state_dict'])
 
     def train():
@@ -87,7 +87,7 @@ if __name__ == "__main__":
         
             print('Training done.')
 
-            model_name =str(path) + '/model1_checkpoint_epoch_' +str(epoch+6) +'.pt'
+            model_name =str(path) + '/Model/model1_checkpoint_epoch_' +str(epoch+6) +'.pt'
 
             # save trained model
             #torch.save(model.state_dict(), model_name)
