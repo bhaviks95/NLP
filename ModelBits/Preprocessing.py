@@ -2,29 +2,22 @@
 import pandas as pd
 import numpy as np
 import torch
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset, random_split, TensorDataset
 from transformers import AutoTokenizer
 import os
+from datetime import datetime
 
 path = os.path.dirname(os.path.abspath(__file__))
 
-class PreprocessedData(Dataset):
+class PreprocessData():
     def __init__(self, pseudolabels = False, num_context = 1, tokenizer = "bert-base-cased"):
-        super().__init__()
         self.tokenizer = tokenizer
         self.autotokenizer = AutoTokenizer.from_pretrained(self.tokenizer)
         self.df = self.extract()
-        self.sentences, self.labels = self.generate_word_dataset(df=self.df, num_context=num_context, pseudolabels = pseudolabels)
+        self.trainset, self.testset = self.generate_word_dataset(df=self.df, num_context=num_context, pseudolabels = pseudolabels)
         
-
     def __len__(self):
-            return len(self.labels)
-    
-    def __getitem__(self, idx):
-            label = self.labels[idx]
-            sentences = self.sentences[idx]
-            sample = [sentences, label]
-            return sample
+        return len(self.trainset), len(self.testset)
     
     def extract(self):
         df_groundtruth = pd.read_csv(str(path)+'/../ClaimBuster_Datasets/datasets/groundtruth.csv')
@@ -69,12 +62,93 @@ class PreprocessedData(Dataset):
         labelled_indices = np.where(label!=7)[0]
         
         label = label.tolist()
+ 
+        length = len(label)
+        indices = np.arange(length)
+        
+        train_indices = np.random.choice(indices,int(length*0.8),replace=False)
+        test_indices = np.delete(indices, train_indices)
+        print(len(indices), len(train_indices), len(test_indices))
+        dataset = np.array(dataset)
+        label = np.array(label)
 
-        if pseudolabels == False:
-            dataset = [dataset[i] for i in labelled_indices]
-            label = [label[i] for i in labelled_indices]
+        train_sentences = dataset[train_indices]
+        test_sentences = dataset[test_indices]
+        train_labels = label[train_indices]
+        test_labels = label[test_indices]
 
-        return torch.tensor(dataset), torch.tensor(label)
+        print(train_sentences.shape)
+        print(test_sentences.shape)
+        print(train_labels.shape)
+        print(test_labels.shape)
+        return (train_sentences, train_labels), (test_sentences, test_labels)
 
-a = PreprocessedData()
-print(a.labels.unique())
+dataset = PreprocessData()
+
+train_sentences, train_labels = dataset.trainset
+test_sentences, test_labels = dataset.testset
+
+time = datetime.now().strftime("%d_%m_%Y__%H_%M_%S")
+
+train_sentences_name= str(path) + '/Data/train_sentences__' + str(time)
+train_labels_name = str(path) + '/Data/train_labels__' + str(time)
+test_sentences_name = str(path) + '/Data/test_sentences__' + str(time)
+test_labels_name = str(path) + '/Data/test_labels__' + str(time)
+
+np.save(train_sentences_name, train_sentences)
+np.save(train_labels_name, train_labels)
+np.save(test_sentences_name, test_sentences)
+np.save(test_labels_name, test_labels)
+
+'''dataset = PreprocessedData()
+trainset, testset = random_split(dataset, [0.8,0.2])
+trainset, testset = TensorDataset(trainset.numpy()), TensorDataset(testset.numpy())
+print(type(trainset))
+time = datetime.now().strftime("%d_%m_%Y__%H_%M_%S")
+
+trainset_name = str(path) + '/trainset__' + str(time)+'.pt'
+testset_name = str(path) + '/testset__' + str(time)+'.pt'''
+#torch.save(trainset, trainset_name)
+#torch.save(testset, testset_name)
+
+'''dataset = np.array(dataset)
+
+        train_sentences = dataset[train_indices.astype(int)]
+        test_sentences = dataset[test_indices]
+        train_labels = label[train_indices]
+        test_labels = label[test_indices]
+
+        return train_sentences, train_labels, test_sentences, test_labels
+
+train_sentences, train_labels, test_sentences, test_labels = PreprocessData()
+
+time = datetime.now().strftime("%d_%m_%Y__%H_%M_%S")
+
+
+train_sentences_name= str(path) + 'Data/train_sentences__' + str(time)
+train_labels_name = str(path) + 'Data/test_sentences__' + str(time)
+test_sentences_name = str(path) + 'Data/train_labels__' + str(time)
+test_labels_name = str(path) + 'Data/test_labels__' + str(time)
+
+np.save(train_sentences_name, train_sentences)
+np.save(train_labels_name, test_sentences)
+np.save(test_sentences_name, test_sentences_name)
+np.save(test_labels_name, train_labels_name)
+
+trainset = pd.DataFrame({'sentences':train_sentences,'labels':train_labels})
+        testset = pd.DataFrame({'sentences':test_sentences,'labels':test_labels})
+        
+        return trainset, testset
+
+trainset, testset = PreprocessData()
+
+time = datetime.now().strftime("%d_%m_%Y__%H_%M_%S")
+trainset_name = str(path) + '/trainset__' + str(time)+'.csv'
+testset_name = str(path) + '/testset__' + str(time)+'.csv'
+
+trainset.to_csv(trainset_name)
+trainset.to_csv(testset_name)
+
+print(len(trainset, testset))
+
+'''
