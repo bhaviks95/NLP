@@ -15,7 +15,7 @@ cryptography==38.0.4
 cymem==2.0.6
 debugpy==1.6.6
 decorator==5.1.1
-en-core-web-sm==3.3.0
+#en-core-web-sm==3.3.0
 executing==1.2.0
 filelock==3.9.0
 flit_core==3.6.0
