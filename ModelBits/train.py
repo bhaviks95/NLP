@@ -5,7 +5,7 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 import pandas as pd
 import numpy as np
-from network import network
+from network1 import network
 import time
 import os
 from get_dataset import Get_Dataset
@@ -38,14 +38,14 @@ if __name__ == "__main__":
 
     model = network(input_size=input_size, hidden_size=hidden_size, L = L, batch_size = batch_size).to(device)
 
-    checkpoint = torch.load(str(path) + '/Model/model1_checkpoint_epoch_5.pt')
-    model.load_state_dict(checkpoint['model_state_dict'])
+    #checkpoint = torch.load(str(path) + '/Model/model1_checkpoint_epoch_5.pt')
+    #model.load_state_dict(checkpoint['model_state_dict'])
 
     def train():
     ## loss and optimiser
-        criterion = torch.nn.CrossEntropyLoss(reduction='mean')
-        optimizer = optim.SGD(model.parameters(), lr = 0.001,momentum=0.9)
-        
+        criterion = torch.nn.CrossEntropyLoss()
+        optimizer = optim.Adam(model.parameters(), lr = 0.001)
+        scheduler = torch.optim.lr_scheduler.StepLR(optimizer, 2, gamma=0.5, last_epoch =- 1)
         t0 = time.time()
         ## train
         for epoch in range(epochs):  # loop over the dataset multiple times
@@ -66,8 +66,8 @@ if __name__ == "__main__":
                 
                 # print statistics
                 running_loss += float(loss.item())
-                print('Epoch ' + str(epoch+1) + ', Batch ' + str((i+1)) + '/' + str(int(len(trainset)/batch_size)) + ', loss: ' + str(running_loss /(i+1)) + ', Time from start: ' +str(time.time()-t0),end = '\r')
-            
+                print('Epoch ' + str(epoch+1) + ', Batch ' + str((i+1)) + '/' + str(int(len(trainset)/batch_size)) + ', loss: ' + str(running_loss /(i+1)) + ', Time from start: ' +str(time.time()-t0), end = '\r')
+            scheduler.step()
             print('')
             correct = 0.0
             with torch.no_grad():
@@ -87,13 +87,13 @@ if __name__ == "__main__":
         
             print('Training done.')
 
-            model_name =str(path) + '/Model/model1_checkpoint_epoch_' +str(epoch+6) +'.pt'
+            model_name =str(path) + '/Model/model1_checkpoint_epoch_' +str(epoch+1) +'.pt'
 
             # save trained model
             #torch.save(model.state_dict(), model_name)
 
             torch.save({
-            'epoch': epoch+6,
+            'epoch': epoch+1,
             'model_state_dict': model.state_dict(),
             'optimizer_state_dict': optimizer.state_dict(),
             'loss': running_loss,

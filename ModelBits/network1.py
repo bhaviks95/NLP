@@ -41,10 +41,10 @@ class network(nn.Module):
         return output
     
     def forward(self, x):
-        #x = torch.tensor_split(x, self.L, dim = 1)
-        #x = torch.cat([self.embed(xi.squeeze())[1].reshape([self.batch_size,1,self.input_size]) for xi in x],dim=1)
-        x = x.reshape(self.batch_size*self.L,x.shape[-1])
-        x = self.embed(x.squeeze())[1].reshape(self.batch_size, self.L, 768)
+        x = torch.tensor_split(x, self.L, dim = 1)
+        x = torch.cat([self.embed(xi.squeeze())[1].reshape([self.batch_size,1,self.input_size]) for xi in x],dim=1)
+        #x = x.reshape(self.batch_size*self.L,x.shape[-1])
+        #x = self.embed(x.squeeze())[1].reshape(self.batch_size, self.L, 768)
         x = self.LSTM(x)[0][:,self.target,:]
         x = self.fc1(x)
         x = relu(x)
