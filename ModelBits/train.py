@@ -44,7 +44,7 @@ if __name__ == "__main__":
     def train():
     ## loss and optimiser
         criterion = torch.nn.CrossEntropyLoss()
-        optimizer = optim.Adam(model.parameters(), lr = 0.001)
+        optimizer = optim.SGD(model.parameters(), lr = 0.001, momentum=0.9)
         scheduler = torch.optim.lr_scheduler.StepLR(optimizer, 2, gamma=0.5, last_epoch =- 1)
         t0 = time.time()
         ## train
